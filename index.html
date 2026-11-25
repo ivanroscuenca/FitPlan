@@ -22,6 +22,9 @@ h1{font-size:22px;margin:0 0 2px}h2{font-size:18px;margin:16px 0 4px}
 .ex>div{flex:1;min-width:0}.ex i{color:var(--ac);font-style:normal;font-size:12px;font-weight:600;text-transform:uppercase}
 input[data-l],input[data-b],select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px;font:inherit;max-width:100%}
 input[data-l]{width:110px}
+.anim{width:100%;max-width:340px;display:block;margin:6px auto;background:var(--bg);border-radius:10px}
+.play{border:1px solid var(--bd);background:var(--bg);color:var(--ac);border-radius:8px;padding:2px 8px;font:inherit;font-size:13px;cursor:pointer;margin-left:6px}
+.hl{outline:2px solid var(--ac)}
 .row input{width:100%;display:block;margin-top:2px;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px;font:inherit}
 .row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.row label{flex:1;min-width:140px;font-size:13px;color:var(--mut)}.row select{width:100%;display:block;margin-top:2px}
 .bar{height:8px;border-radius:4px;background:var(--bd);margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
@@ -101,6 +104,38 @@ async function boot(){if(!sb){render();return}const{data}=await sb.auth.getSessi
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const lat=k=>S.lv[k+8]||S.lv[k+4]||S.lv[k+1];
 const items=(w,d)=>{const a=w<3?P1[d]:w<5?P2[d]:w<7?P3[d]:W[w][d];return w==10?a.concat("Tiempo total|min:s"):a};
+/*ANIM*/
+const fill=p=>{const q=p.slice();if(q[6]==null)q[6]=q[3];if(q[7]==null)q[7]=q[4];if(q[8]==null)q[8]=0;if(q[9]==null)q[9]=0;return q};
+const M={
+flexion:{n:"Flexión",g:1,ax:"W",x:150,ay:"g",d:2.4,p:[[-25,90,90,155,155,-25],[-7,120,-16,173,173,-7]],t:"Manos bajo los hombros y cuerpo recto de cabeza a talones. Baja el pecho casi hasta el suelo y empuja sin arquear la espalda. Más fáciles: de rodillas o con las manos elevadas. Más difíciles: pies elevados, hindúes, espartanas, en T, con una mano y verticales."},
+dominada:{n:"Dominada",bar:[60,12,140,12],ax:"W",x:100,ay:"W",y:12,d:3,p:[[-90,-90,-90,92,110,-90],[-95,20,-80,100,125,-72]],t:"Agarre firme en la barra y brazos estirados. Tira hasta pasar la barbilla por encima de la barra y baja con control. Variantes del plan: agarre supino (palmas hacia ti), manos juntas, comando y con una mano."},
+remo:{n:"Dominada horizontal",g:1,bar:[110,70,170,70],ax:"W",x:140,ay:"g",d:3,p:[[-16,-90,-90,164,164,-16],[-37,30,-75,143,143,-37]],t:"Cuerpo recto bajo una barra baja y talones en el suelo. Tira del pecho hacia la barra y baja despacio. Cuanto más horizontal está el cuerpo, más difícil. Incluye la semi-dominada horizontal."},
+sentadilla:{n:"Sentadilla",g:1,ax:"A",x:100,ay:"g",d:2.6,p:[[-90,0,0,90,90,-90],[-62,0,0,12,105,-62]],t:"Pies a la anchura de los hombros. Lleva la cadera atrás y baja con la espalda recta y las rodillas alineadas con los pies, hasta que los muslos queden paralelos al suelo. Sube empujando con los talones. A una pierna y búlgara son más difíciles."},
+desplante:{n:"Desplante",g:1,ax:"A",x:110,ay:"g",d:3,p:[[-90,90,90,90,90,-90],[-90,90,90,8,90,-90,112,168]],t:"Da un paso y baja hasta que ambas rodillas formen unos 90°, con el torso erguido. Empuja para volver al inicio. Variantes: laterales, con salto y con peso."},
+abdominal:{n:"Abdominales",g:1,ax:"P",x:110,ay:"g",d:2.6,p:[[180,0,0,-60,130,180],[225,0,0,-60,130,225]],t:"Tumbado boca arriba con las rodillas dobladas. Sube el torso con el abdomen, sin tirar del cuello, y baja con control. Las variantes en V y la bicicleta trabajan lo mismo con otra postura."},
+puente:{n:"Levantamiento de caderas",g:1,ax:"A",x:130,ay:"g",d:2.8,p:[[180,0,0,-60,130,180],[128,0,0,15,100,180]],t:"Tumbado con las rodillas dobladas y los pies apoyados. Sube la cadera hasta alinear hombros, cadera y rodillas, aprieta los glúteos arriba y baja con control. A una pierna es más difícil."},
+talones:{n:"Elevación de talones",g:1,foot:1,ax:"T",x:110,ay:"g",d:2,p:[[-90,90,90,90,90,-90,null,null,0],[-90,90,90,90,90,-90,null,null,55]],t:"De pie, sube sobre las puntas de los pies todo lo que puedas, aguanta un instante y baja despacio. A una pierna es más difícil."},
+plancha:{n:"Plancha",g:1,ax:"E",x:120,ay:"g",d:4,p:[[-12,90,0,168,168,-12],[-14,90,0,166,166,-14]],t:"Antebrazos en el suelo y cuerpo en línea recta de cabeza a talones, con abdomen y glúteos apretados. Aguanta el tiempo indicado. La lateral se hace de lado, apoyado en un antebrazo."},
+dips:{n:"Dips (fondos)",bar:[75,62,125,62],ax:"W",x:100,ay:"W",y:62,d:2.6,p:[[-90,90,90,100,160,-90],[-90,120,20,100,160,-90]],t:"Manos sobre dos apoyos firmes (barras o sillas) y brazos estirados. Baja flexionando los codos hacia atrás hasta unos 90° y empuja para subir."},
+salto:{n:"Salto",g:1,foot:1,ax:"A",x:100,ay:"g",d:1.8,p:[[-62,0,0,12,105,-62],[-90,-35,-35,92,92,-90,null,null,45,12]],t:"Flexiona las rodillas, salta lo más alto o lejos que puedas ayudándote con los brazos y amortigua la caída flexionando. Sirve de referencia para saltos sobre plataforma, con desplante o sentadilla y para la cuerda."},
+escalador:{n:"Escaladores",g:1,ax:"W",x:150,ay:"g",d:1.2,p:[[-25,90,90,155,155,-25,35,164],[-25,90,90,35,164,-25,155,155]],t:"En plancha alta, lleva una rodilla hacia el pecho y cambia de pierna rápido sin subir la cadera. Los inversos se hacen cambiando el sentido del movimiento."},
+lumbar:{n:"Lumbares (superman)",g:1,ax:"P",x:100,ay:"g",d:2.8,p:[[0,0,0,180,180,0],[-22,-22,-22,200,200,-22]],t:"Tumbado boca abajo, levanta a la vez pecho y piernas, aguanta un segundo y baja. Sin forzar el cuello."},
+rodilla:{n:"Rodilla a pecho",g:1,ax:"A2",x:100,ay:"g",d:2.2,p:[[-90,90,90,90,90,-90],[-90,90,90,5,95,-90,90,90]],t:"De pie, sube una rodilla hacia el pecho de forma controlada y alterna las piernas, con el torso erguido."},
+burpee:{n:"Burpee",g:1,ax:"P",x:100,ay:"g",d:4,p:[[-90,90,90,90,90,-90],[-10,90,90,15,110,-10],[-25,90,90,155,155,-25],[-10,90,90,15,110,-10]],t:"De pie, baja con las manos al suelo, lleva los pies atrás hasta la plancha, recoge los pies y ponte de pie (opcional: con salto)."}};
+for(const k in M)M[k].p=M[k].p.map(fill);
+const R=[[/burpee/,"burpee"],[/escalador/,"escalador"],[/plancha/,"plancha"],[/desplante/,"desplante"],[/salto|impulso/,"salto"],[/horizontal|semi-dominada/,"remo"],[/dominada/,"dominada"],[/dips|fondos/,"dips"],[/flexi|bombardero|tr[ií]ceps/,"flexion"],[/sentadilla|b[uú]lgara/,"sentadilla"],[/talones/,"talones"],[/abdominal|bicicleta/,"abdominal"],[/cadera/,"puente"],[/lumbar/,"lumbar"],[/rodilla/,"rodilla"]];
+const mk=n=>{const r=R.find(([re])=>re.test(n));return r&&r[1]};
+const keys=n=>[...new Set(n.toLowerCase().split("+").map(mk).filter(Boolean))];
+const plays=n=>{const ks=keys(n);return ks.map(k=>`<button class="play" data-x="${k}">▶ ${ks.length>1?M[k].n:"Ver"}</button>`).join("")};
+function pts(m,t){const n=m.p.length,c=(t/m.d)%1*n,i=Math.floor(c),f=c-i,e=(1-Math.cos(Math.PI*f))/2,a=m.p[i],b=m.p[(i+1)%n],q=a.map((v,k)=>v+(b[k]-v)*e),r=x=>x*Math.PI/180,v=(o,l,g)=>[o[0]+l*Math.cos(r(g)),o[1]+l*Math.sin(r(g))],P=[0,0],S=v(P,38,q[0]),E=v(S,18,q[1]),W=v(E,18,q[2]),K=v(P,24,q[3]),A=v(K,24,q[4]),H=v(S,12,q[5]),K2=v(P,24,q[6]),A2=v(K2,24,q[7]),T=v(A,10,q[8]),o={P,S,E,W,K,A,H,K2,A2,T},ys=[P,S,E,W,K,A,K2,A2].concat(m.foot?[T]:[],[[0,H[1]+5]]).map(p=>p[1]),dx=m.x-o[m.ax][0],dy=m.ay=="g"?130-q[9]-Math.max(...ys):m.y-o[m.ay][1];
+for(const k in o)o[k]=[o[k][0]+dx,o[k][1]+dy];return o}
+function draw(s,t){const m=M[s.dataset.m],o=pts(m,t),L=(...k)=>k.map(x=>o[x].map(n=>n.toFixed(1)).join(",")).join(" "),g=c=>s.querySelector(c);
+g(".l2").setAttribute("points",L("P","K2","A2"));g(".bd").setAttribute("points",L("S","P"));g(".ar").setAttribute("points",L("S","E","W"));g(".l1").setAttribute("points",L("P","K","A")+(m.foot?" "+L("T"):""));
+const h=g(".hd");h.setAttribute("cx",o.H[0]);h.setAttribute("cy",o.H[1])}
+const svg=k=>{const m=M[k];return`<svg class="anim" viewBox="0 0 200 140" data-m="${k}" role="img" aria-label="${m.n}">${m.g?'<line x1="8" y1="133" x2="192" y2="133" stroke="var(--bd)" stroke-width="3"/>':""}${m.bar?`<line x1="${m.bar[0]}" y1="${m.bar[1]}" x2="${m.bar[2]}" y2="${m.bar[3]}" stroke="var(--mut)" stroke-width="4" stroke-linecap="round"/>`:""}<g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="4.5"><polyline class="l2" stroke="var(--mut)"/><polyline class="bd" stroke="var(--fg)"/><polyline class="ar" stroke="var(--ac)"/><polyline class="l1" stroke="var(--fg)"/><circle class="hd" r="8" stroke="var(--fg)"/></g></svg>`};
+const exs=()=>'<p class="m">Animaciones de referencia de cada movimiento. Desde el Plan, pulsa ▶ en un ejercicio para verlo aquí. Cada variante se hace con la misma técnica base.</p>'+Object.keys(M).map(k=>`<section class="card" id="m-${k}"><b>${M[k].n}</b>${svg(k)}<p class="m">${M[k].t}</p></section>`).join("");
+const loop=t=>{document.querySelectorAll("svg[data-m]").forEach(e=>draw(e,t/1000));requestAnimationFrame(loop)};
+/*END*/
 function hint(k,w,d){const L=lat(k);if(!L)return"";const o=w<3?(d<2?-1:0):w<5?1:0;const n=Math.min(5,Math.max(1,+L+o));return"Nivel "+n+": "+X[k].l[n-1]}
 function plan(){const w=S.w,b=B(w);
 let h='<div class="chips">'+[...Array(11)].map((_,i)=>`<button class="chip${i+1==w?" on":""}" data-w="${i+1}">${i+1}</button>`).join("")+`</div><h2>Semana ${w} · ${b.t}</h2><p class="m">${b.i}</p>`;
@@ -109,7 +144,7 @@ if(w==11)return h;
 for(let d=0;d<4;d++){const id=w+"-"+d,t=w<3?T1[d]:w<7?T2[d]:"";
 h+=`<section class="card"><label class="hd"><input type="checkbox" data-d="${id}"${S.done[id]?" checked":""}><b>Día ${d+1}</b>${t?" · "+t:""}</label>`;
 items(w,d).forEach((s,i)=>{const[n,p,k]=s.split("|"),key=id+"-"+i,ht=k?hint(k,w,d):"";
-h+=`<div class="ex"><div>${w<9&&i==4?"<i>Extra</i> ":""}${esc(n)}<small>${esc(p||"")}${ht?(p?" · ":"")+ht:""}</small></div><input data-l="${key}" value="${esc(S.log[key])}" placeholder="resultado"></div>`});
+h+=`<div class="ex"><div>${w<9&&i==4?"<i>Extra</i> ":""}${esc(n)}${plays(n)}<small>${esc(p||"")}${ht?(p?" · ":"")+ht:""}</small></div><input data-l="${key}" value="${esc(S.log[key])}" placeholder="resultado"></div>`});
 h+="</section>"}
 return h}
 function lvls(){let h=`<p class="m">Test inicial (semana 1) y repetición en las semanas 4 y 8: haz cada ejercicio en tu nivel máximo e intenta cumplir el criterio para avanzar; si lo logras, prueba el siguiente nivel. Descansa 2 min entre ejercicios. Tu nivel máximo es el más alto que haces con buena técnica sin cumplir aún el criterio para pasar al siguiente.</p><div class="chips"><button class="chip${S.sex=="H"?" on":""}" data-s="H">Hombre</button><button class="chip${S.sex=="M"?" on":""}" data-s="M">Mujer</button></div>`;
@@ -123,11 +158,12 @@ return h+"</table></div></section>"}
 function render(){const y=scrollY;
 if(!sb){$app.innerHTML=cfgView;return}
 if(!user){$app.innerHTML=authView;return}
-$app.innerHTML=`<h1>Desencadenado · 10 semanas</h1><small>Plan basado en el libro “Desencadenado. Tu cuerpo es tu gimnasio”</small><div class="chips">`+[["plan","Plan"],["lv","Niveles"],["pr","Progreso"]].map(([t,l])=>`<button class="chip${S.tab==t?" on":""}" data-tab="${t}">${l}</button>`).join("")+"</div>"+(S.tab=="plan"?plan():S.tab=="lv"?lvls():prog())+(sb?'<p class="m"><span id="st"></span> <button class="chip" data-a="out">Salir</button></p>':'<p class="m">Tus datos se guardan en este navegador.</p>');
-scrollTo(0,y)}
+$app.innerHTML=`<h1>Desencadenado · 10 semanas</h1><small>Plan basado en el libro “Desencadenado. Tu cuerpo es tu gimnasio”</small><div class="chips">`+[["plan","Plan"],["ex","Ejercicios"],["lv","Niveles"],["pr","Progreso"]].map(([t,l])=>`<button class="chip${S.tab==t?" on":""}" data-tab="${t}">${l}</button>`).join("")+"</div>"+(S.tab=="plan"?plan():S.tab=="ex"?exs():S.tab=="lv"?lvls():prog())+(sb?'<p class="m"><span id="st"></span> <button class="chip" data-a="out">Salir</button></p>':'<p class="m">Tus datos se guardan en este navegador.</p>');
+scrollTo(0,y);if(S.tab=="ex"&&S.fx){const e=document.getElementById("m-"+S.fx);S.fx=null;if(e){e.classList.add("hl");e.scrollIntoView()}}}
 const $app=document.getElementById("app");
-document.addEventListener("click",e=>{const t=e.target.closest("[data-w],[data-s],[data-tab],[data-a]");if(!t)return;const d=t.dataset;if(d.a){if(d.a=="out"){sb.auth.signOut();user=null;render()}else if(d.a=="cfg"){const u=document.getElementById("cu").value.trim(),k=document.getElementById("ck").value.trim();if(!u.startsWith("https://")||!k){$st("Revisa la URL y la clave");return}try{localStorage.setItem("sbu",u);localStorage.setItem("sbk",k)}catch(e){}location.reload()}else auth(d.a);return}if(d.w)S.w=+d.w;if(d.s)S.sex=d.s;if(d.tab)S.tab=d.tab;save();render()});
+document.addEventListener("click",e=>{const t=e.target.closest("[data-w],[data-s],[data-tab],[data-a],[data-x]");if(!t)return;const d=t.dataset;if(d.x){S.tab="ex";S.fx=d.x;render();return}if(d.a){if(d.a=="out"){sb.auth.signOut();user=null;render()}else if(d.a=="cfg"){const u=document.getElementById("cu").value.trim(),k=document.getElementById("ck").value.trim();if(!u.startsWith("https://")||!k){$st("Revisa la URL y la clave");return}try{localStorage.setItem("sbu",u);localStorage.setItem("sbk",k)}catch(e){}location.reload()}else auth(d.a);return}if(d.w)S.w=+d.w;if(d.s)S.sex=d.s;if(d.tab)S.tab=d.tab;save();render()});
 document.addEventListener("change",e=>{const t=e.target,d=t.dataset;if(d.d)S.done[d.d]=t.checked;else if(d.v)S.lv[d.v]=t.value;else return;save();render()});
 document.addEventListener("input",e=>{const t=e.target,d=t.dataset;if(d.l)S.log[d.l]=t.value;else if(d.b)S.body[d.b]=t.value;else return;save()});
+requestAnimationFrame(loop);
 boot();
 </script></body></html>

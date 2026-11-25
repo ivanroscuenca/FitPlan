@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desencadenado · Plan de 10 semanas</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{--bg:#f6f5f0;--fg:#1c1c1a;--mut:#6a6962;--card:#fff;--ac:#b8430f;--bd:#dddbd2;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#151514;--fg:#ecebe4;--mut:#9b9a91;--card:#201f1d;--ac:#f08a4b;--bd:#34332f}}
+:root[data-theme="dark"]{--bg:#151514;--fg:#ecebe4;--mut:#9b9a91;--card:#201f1d;--ac:#f08a4b;--bd:#34332f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:0 0 2px}h2{font-size:18px;margin:16px 0 4px}
+.m,small{color:var(--mut)}.m{margin:4px 0 12px;font-size:14px}small{display:block;font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:999px;padding:7px 13px;font:inherit;cursor:pointer;min-width:40px}
+.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:10px 0}
+.hd{display:flex;gap:8px;align-items:center;margin-bottom:6px}.hd input{width:20px;height:20px;accent-color:var(--ac)}
+.ex{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--bd)}
+.ex>div{flex:1;min-width:0}.ex i{color:var(--ac);font-style:normal;font-size:12px;font-weight:600;text-transform:uppercase}
+input[data-l],input[data-b],select{background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px;font:inherit;max-width:100%}
+input[data-l]{width:110px}
+.row input{width:100%;display:block;margin-top:2px;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:8px;padding:7px;font:inherit}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.row label{flex:1;min-width:140px;font-size:13px;color:var(--mut)}.row select{width:100%;display:block;margin-top:2px}
+.bar{height:8px;border-radius:4px;background:var(--bd);margin-top:8px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%}td,th{padding:4px;text-align:center;font-size:14px}input[data-b]{width:76px;text-align:center}
+</style></head>
+<body><div id="app"></div>
+<script>
+const X={
+f:{n:"Flexión",l:"Manos elevadas|De rodillas|Clásica|Pies elevados|Con una mano",h:"30 rep.|30 rep.|30 rep.|30 rep.|10 rep. por mano",m:"20 rep.|20 rep.|20 rep.|20 rep.|8 rep. por mano"},
+v:{n:"Flexión vertical",l:"Vertical sobre la cabeza|Vertical sobre las manos|Semi-flexión vertical|Flexión vertical|Flexión vertical profunda",h:"aguantar 45 s|aguantar 45 s|10 rep.|10 rep.|10 rep.",m:"aguantar 45 s|aguantar 45 s|8 rep.|8 rep.|8 rep."},
+d:{n:"Dominada",l:"Colgarse|Asistida|Clásica|Mano y media|Con una mano",h:"45 s estirado y 20 s flexionado|10 rep.|10 rep.|8 rep. por mano|3 rep. por mano",m:"40 s estirada y 15 s flexionada|8 rep.|7 rep.|5 rep. por mano|1 rep. por mano"},
+s:{n:"Sentadilla",l:"Media con apoyo|Completa con apoyo|Clásica|Una pierna asistida|Una pierna",h:"30 rep.|30 rep.|30 rep.|15 rep. por pierna|10 rep. por pierna",m:"30 rep.|30 rep.|30 rep.|10 rep. por pierna|8 rep. por pierna"},
+a:{n:"Abdominales",l:"En silla|Piernas encogidas en suelo|Piernas estiradas en suelo|Colgado, piernas encogidas|Colgado, piernas estiradas",h:"30 rep.|30 rep.|25 rep.|15 rep.|10 rep.",m:"30 rep.|30 rep.|25 rep.|15 rep.|10 rep."}};
+for(const k in X)for(const c of"lhm")X[k][c]=X[k][c].split("|");
+const T1=["Tirar/Empujar · pirámides","Piernas/Core · pirámides","Tirar/Empujar · supersets","Piernas/Core · supersets"],T2=["Empujar","Piernas","Tirar","Core"];
+const P1=[
+["Pirámide de flexiones|7 min|f","Pirámide de dominadas|7 min|d","Pirámide de flexiones hindúes|7 min","Pirámide de semi-dominada horizontal|7 min","Pirámide de dips|7 min"],
+["Pirámide de desplantes|7 min","Pirámide de abdominales|7 min|a","Pirámide de sentadillas|7 min|s","Pirámide de levantamiento de caderas|7 min","Pirámide de sentadilla búlgara|7 min"],
+["Superset flexiones + dominadas|2 × 8-12 + 8-12","Superset flexiones en T + dominadas horizontales|2 × 8-12 + 8-12","Superset flexiones hindúes + dominadas supinas|2 × 8-12 + 8-12","Superset flexiones verticales + dominada comando|2 × 8-12 + 8-12","Superset flexión + dominada con manos juntas|1 × 8-12 + 8-12"],
+["Superset desplantes laterales + abdominales|2 × 8-12 + 8-12","Superset sentadillas + lumbares|2 × 8-12 + 8-12","Superset elevación de talones + flexión S&M|2 × 8-12 + 8-12","Plancha lateral|2 veces por lado, 1 min","Superset bicicleta + rodilla a pecho|1 × 8-12 por lado"]];
+const P2=[
+["Flexiones|3 × 5-8|f","Flexiones verticales|3 × 5-8|v","Flexiones con manos juntas|3 × 8-10","Dips|3 × 8-10","Flexiones con balón|2 × 8-10 por lado"],
+["Sentadillas|3 × 5-8 (por pierna en niveles 4-5)|s","Elevaciones de talones|3 × 8-10 por pierna","Sentadillas búlgaras con peso|3 × 5-8 por pierna","Desplantes con peso|3 × 5-8 por pierna","Levantamiento de caderas con 1 pierna|2 × 8-10"],
+["Dominadas|3 × 5-8|d","Dominada horizontal con pies elevados|3 × 5-8","Dominadas con agarre supino|3 × 5-8","Semi-dominada horizontal con 1 mano|3 × 5-8 por mano","Dominada con manos juntas|2 × 5-8"],
+["Abdominales|3 × 8-10|a","Abdominales en V|3 × 8-10","Bicicletas|3 × 10-15 por pierna","Flexiones superman|3 × 5-8","Lumbares|2 × 8-10"]];
+const P3=[
+["Flexiones con palmada|3 × 8-10|f","Bombardero en picado|3 × 8-10","Extensiones de tríceps|3 × 8-10","Flexiones espartanas|3 × 8-10","Flexiones en T|2 × 8-10"],
+["Desplantes con salto|3 × 8-10 por pierna","Rodillas a pecho|3 × 8-10","Salto sobre plataforma|3 × 8-10","Sentadilla con salto|3 × 5-8","Desplantes laterales|2 × 5-8 por lado"],
+["Dominadas|3 × 5-8|d","Dominadas horizontales|3 × 8-10","Dominadas con agarre supino|3 × 5-8","Semi-dominadas horizontales|3 × 8-10","Dominada comando|2 × 5-8"],
+["Abdominales|3 × 8-10|a","Levantamiento de caderas con 1 pierna|3 × 8-10","Plancha con flexión|3 × 15-20","Plancha lateral con flexión|2 × 15-20 por lado","Lumbares|3 × 8-10"]];
+const W={7:[
+["Flexiones sobre balón|3 × 8-10 por brazo","Flexiones profundas|3 × 5-8","Flexión vertical|3 × 5-8|v","Dips|3 × 8-10","Flexiones con ambos brazos sobre balón|2 × 8-10"],
+["Saltos sobre plataforma|3 × 8-10","Desplantes con salto|3 × 8-10","Sentadilla con salto|3 × 8-10","Levantamiento con impulso|3 × 8-10","Elevación de talones|2 × 8-10 por pierna"],
+["Dominadas|2 × 8-10|d","Dominada horizontal|3 × 8-10","Dominadas con manos juntas|2 × 8-10","Lumbares|3 × 8-10","Flexión S&M|2 × 8-10"],
+["Flexión sobre balón alternando brazos|2 × 8-10 por brazo","Flexión espartana|3 × 8-10","Extensión de tríceps|3 × 8-10","Flexión hindú|3 × 8-10","Flexiones en T|2 × 8-10"]],
+8:[
+["Sentadilla|3 × 8-10|s","Desplantes|3 × 5-8","Desplantes laterales|3 × 5-8 por lado","Elevación de talones|3 × 8-10 por pierna","Sentadilla búlgara|3 × 8-10 por pierna"],
+["Dominada|3 × 8-10|d","Dominada horizontal|3 × 8-10","Dominada manos juntas|3 × 8-10","Dominada comando|3 × 8-10","Flexión vertical|2 × 8-10|v"],
+["Abdominales|3 × 8-10|a","Plancha|2 × 1 min","Lumbares|3 × 8-10","Levantamiento de cadera con una pierna|3 × 8-10 por pierna","Plancha lateral|2 × 1 min por lado"],
+["Flexión con palmada|3 × 8-10|f","Flexión vertical|3 × 5-8|v","Sentadilla con salto|3 × 8-10","Rodilla a pecho|3 × 8-10","Flexión espartana|2 × 8-10"]],
+9:[
+["2 supersets: flexión + dominada|nivel máx · mrp","Sentadillas|2 × mrp · nivel máx|s","Tabata de flexiones verticales|nivel máx-1 · 8 × (20 s / 10 s)","Levantamiento con impulso|2 × 10"],
+["Bombardero en picado|3 × mrp","Dominada horizontal|3 × mrp","Desplantes laterales|3 × mrp","Salto de cuerda|2 × 100 saltos"],
+["Abdominales|3 × mrp · nivel máx|a","Lumbares|3 × mrp","Abdominales en V|3 × mrp","Burpees|2 × mrp"],
+["Levantamiento de caderas|2 × mrp","Sentadillas|2 × mrp · nivel máx|s","2 supersets: 10 escaladores + 10 escaladores inversos","Salto de cuerda|2 × 100 saltos"]],
+10:[
+["50 jumping jacks|2 rondas","20 flexiones|nivel máx · 2 rondas|f","20 desplantes (10 por pierna)|2 rondas","10 burpees|2 rondas","Plancha|1 min · 2 rondas","50 levantamientos de rodilla (25 por pierna)|2 rondas"],
+["20 flexiones a plancha|2 rondas","20 desplantes laterales (10 por lado)|2 rondas","20 escaladores|2 rondas","10 burpees|2 rondas","Plancha lateral|45 s por lado · 2 rondas","50 levantamientos de rodilla (25 por pierna)|2 rondas"],
+["50 jumping jacks|2 rondas","15 levantamientos con impulso|2 rondas","20 escaladores inversos|2 rondas","10 abdominales|nivel máx · 2 rondas|a","10 dominadas|nivel máx · 2 rondas|d","100 saltos de cuerda|2 rondas"],
+["10 flexiones|nivel máx · 6 rondas|f","Esprinta 20 s (en casa: salta la cuerda 30 s)|6 rondas","Descansa 20 s|entre rondas"]]};
+const BL=[
+{t:"Resistencia / masa muscular",i:"Pirámides (1, 2, 3… hasta tu máximo y bajando, 7 min por ejercicio) y supersets. Descanso de 1 min entre tandas. En los días 1 y 2 usa tu nivel máx-1."},
+{t:"Fuerza",i:"Nivel máx+1 si llegas a 3-4 repeticiones (si no, tu nivel máx). Cadencia: 2 s subiendo, 2 s bajando. Descanso: 1 min entre tandas y 2 min entre ejercicios. Repite el test esta semana."},
+{t:"Potencia",i:"Sube lo más rápido posible, aguanta 2 s arriba y baja despacio. Nivel máx (o máx-1 si no puedes ser explosivo)."},
+{t:"Acondicionamiento global · fuerza y potencia",i:"Alterna fuerza y potencia en tu nivel máx. En la semana 8 repite el test."},
+{t:"Acondicionamiento global · resistencia",i:"Descansa unos 30 s entre tandas y 1 min como máximo entre ejercicios. mrp = máximas repeticiones posibles."},
+{t:"Acondicionamiento global · HIIT",i:"Todo seguido y sin descanso, solo 1 min entre las dos rondas. Anota tu tiempo total para batirlo."},
+{t:"Descanso activo",i:"Descansa para consolidar lo ganado: caminatas largas y flexibilidad."}];
+const B=w=>BL[w<3?0:w<5?1:w<7?2:w<9?3:w-6];
+let S={tab:"plan",w:1,sex:"H",lv:{},log:{},done:{},body:{}};
+try{const r=localStorage.getItem("dsc1");if(r)Object.assign(S,JSON.parse(r))}catch(e){}
+let SB_URL="",SB_KEY="";try{SB_URL=localStorage.getItem("sbu")||"";SB_KEY=localStorage.getItem("sbk")||""}catch(e){}
+let sb=null,user=null,timer=null;
+try{if(window.supabase&&SB_URL.startsWith("https://"))sb=supabase.createClient(SB_URL,SB_KEY)}catch(e){}
+const $st=t=>{const e=document.getElementById("st");if(e)e.textContent=t};
+const save=()=>{try{localStorage.setItem("dsc1",JSON.stringify(S))}catch(e){}
+if(sb&&user){clearTimeout(timer);timer=setTimeout(async()=>{const{error}=await sb.from("progreso").upsert({user_id:user.id,datos:S,updated_at:new Date().toISOString()});$st(error?"Error al sincronizar":"Sincronizado")},800)}};
+const cfgView='<h1>Desencadenado · 10 semanas</h1><section class="card"><b>Conectar con tu base de datos</b><p class="m">Pega la URL y la clave publishable de tu proyecto de Supabase. Se guardan solo en este dispositivo, no en el código de la página.</p><div class="row"><label>URL<input id="cu" placeholder="https://xxxx.supabase.co"></label><label>Clave publishable<input id="ck" placeholder="sb_publishable_..."></label></div><div class="chips"><button class="chip on" data-a="cfg">Guardar</button></div><small id="st"></small></section>';
+const authView='<h1>Desencadenado · 10 semanas</h1><section class="card"><b>Acceso privado</b><p class="m">Entra con tu correo y contraseña.</p><div class="row"><label>Correo<input id="em" type="email" autocomplete="email"></label><label>Contraseña<input id="pw" type="password" autocomplete="current-password"></label></div><div class="chips"><button class="chip on" data-a="in">Entrar</button><button class="chip" data-a="up">Crear cuenta</button></div><small id="st"></small></section>';
+async function pull(){const{data}=await sb.from("progreso").select("datos").eq("user_id",user.id).maybeSingle();if(data&&data.datos&&Object.keys(data.datos).length)Object.assign(S,data.datos);else save()}
+async function auth(k){const email=document.getElementById("em").value,password=document.getElementById("pw").value;
+const r=k=="up"?await sb.auth.signUp({email,password}):await sb.auth.signInWithPassword({email,password});
+if(r.error){$st(r.error.message);return}
+if(!r.data.session){$st("Cuenta creada. Confirma el correo y vuelve a entrar.");return}
+user=r.data.user;await pull();render()}
+async function boot(){if(!sb){render();return}const{data}=await sb.auth.getSession();user=data.session?data.session.user:null;if(user)await pull();render()}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const lat=k=>S.lv[k+8]||S.lv[k+4]||S.lv[k+1];
+const items=(w,d)=>{const a=w<3?P1[d]:w<5?P2[d]:w<7?P3[d]:W[w][d];return w==10?a.concat("Tiempo total|min:s"):a};
+function hint(k,w,d){const L=lat(k);if(!L)return"";const o=w<3?(d<2?-1:0):w<5?1:0;const n=Math.min(5,Math.max(1,+L+o));return"Nivel "+n+": "+X[k].l[n-1]}
+function plan(){const w=S.w,b=B(w);
+let h='<div class="chips">'+[...Array(11)].map((_,i)=>`<button class="chip${i+1==w?" on":""}" data-w="${i+1}">${i+1}</button>`).join("")+`</div><h2>Semana ${w} · ${b.t}</h2><p class="m">${b.i}</p>`;
+if(w==1)h+='<p class="m">Antes de empezar, haz el test inicial en la pestaña Niveles. Calienta 5 min antes de cada sesión y estira al terminar.</p>';
+if(w==11)return h;
+for(let d=0;d<4;d++){const id=w+"-"+d,t=w<3?T1[d]:w<7?T2[d]:"";
+h+=`<section class="card"><label class="hd"><input type="checkbox" data-d="${id}"${S.done[id]?" checked":""}><b>Día ${d+1}</b>${t?" · "+t:""}</label>`;
+items(w,d).forEach((s,i)=>{const[n,p,k]=s.split("|"),key=id+"-"+i,ht=k?hint(k,w,d):"";
+h+=`<div class="ex"><div>${w<9&&i==4?"<i>Extra</i> ":""}${esc(n)}<small>${esc(p||"")}${ht?(p?" · ":"")+ht:""}</small></div><input data-l="${key}" value="${esc(S.log[key])}" placeholder="resultado"></div>`});
+h+="</section>"}
+return h}
+function lvls(){let h=`<p class="m">Test inicial (semana 1) y repetición en las semanas 4 y 8: haz cada ejercicio en tu nivel máximo e intenta cumplir el criterio para avanzar; si lo logras, prueba el siguiente nivel. Descansa 2 min entre ejercicios. Tu nivel máximo es el más alto que haces con buena técnica sin cumplir aún el criterio para pasar al siguiente.</p><div class="chips"><button class="chip${S.sex=="H"?" on":""}" data-s="H">Hombre</button><button class="chip${S.sex=="M"?" on":""}" data-s="M">Mujer</button></div>`;
+for(const k in X){const x=X[k],L=lat(k);
+h+=`<section class="card"><b>${x.n}</b><div class="row">`+[1,4,8].map(s=>`<label>Semana ${s}<select data-v="${k+s}"><option value="">–</option>${x.l.map((n,i)=>`<option value="${i+1}"${S.lv[k+s]==i+1?" selected":""}>${i+1} · ${n}</option>`).join("")}</select></label>`).join("")+"</div>"+(L?`<small>Para superar el nivel ${L}: ${(S.sex=="H"?x.h:x.m)[L-1]}</small>`:"")+"</section>"}
+return h+'<p class="m">Nota: para la dominada clásica en mujeres, el libro indica 7 rep. en el capítulo y 5 en el anexo.</p>'}
+function prog(){const n=Object.values(S.done).filter(Boolean).length;
+let h=`<section class="card"><b>${n} / 40 sesiones completadas</b><div class="bar"><i style="width:${n*2.5}%"></i></div></section><section class="card"><b>Tus números</b><p class="m">Mídete una vez por semana y en las mismas condiciones. CT = suma de bíceps, cintura, cadera y muslos (cm). Hazte también una foto al empezar.</p><div class="tw"><table><tr><th>Sem<th>Sesiones<th>Peso (kg)<th>Cintura (cm)<th>CT (cm)</tr>`;
+for(let w=1;w<=10;w++)h+=`<tr><td>${w}<td>${[0,1,2,3].filter(d=>S.done[w+"-"+d]).length}/4`+["p","c","t"].map(f=>`<td><input inputmode="decimal" data-b="${w+f}" value="${esc(S.body[w+f])}">`).join("")+"</tr>";
+return h+"</table></div></section>"}
+function render(){const y=scrollY;
+if(!sb){$app.innerHTML=cfgView;return}
+if(!user){$app.innerHTML=authView;return}
+$app.innerHTML=`<h1>Desencadenado · 10 semanas</h1><small>Plan basado en el libro “Desencadenado. Tu cuerpo es tu gimnasio”</small><div class="chips">`+[["plan","Plan"],["lv","Niveles"],["pr","Progreso"]].map(([t,l])=>`<button class="chip${S.tab==t?" on":""}" data-tab="${t}">${l}</button>`).join("")+"</div>"+(S.tab=="plan"?plan():S.tab=="lv"?lvls():prog())+(sb?'<p class="m"><span id="st"></span> <button class="chip" data-a="out">Salir</button></p>':'<p class="m">Tus datos se guardan en este navegador.</p>');
+scrollTo(0,y)}
+const $app=document.getElementById("app");
+document.addEventListener("click",e=>{const t=e.target.closest("[data-w],[data-s],[data-tab],[data-a]");if(!t)return;const d=t.dataset;if(d.a){if(d.a=="out"){sb.auth.signOut();user=null;render()}else if(d.a=="cfg"){const u=document.getElementById("cu").value.trim(),k=document.getElementById("ck").value.trim();if(!u.startsWith("https://")||!k){$st("Revisa la URL y la clave");return}try{localStorage.setItem("sbu",u);localStorage.setItem("sbk",k)}catch(e){}location.reload()}else auth(d.a);return}if(d.w)S.w=+d.w;if(d.s)S.sex=d.s;if(d.tab)S.tab=d.tab;save();render()});
+document.addEventListener("change",e=>{const t=e.target,d=t.dataset;if(d.d)S.done[d.d]=t.checked;else if(d.v)S.lv[d.v]=t.value;else return;save();render()});
+document.addEventListener("input",e=>{const t=e.target,d=t.dataset;if(d.l)S.log[d.l]=t.value;else if(d.b)S.body[d.b]=t.value;else return;save()});
+boot();
+</script></body></html>
